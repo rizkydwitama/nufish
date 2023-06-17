@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nufish/theme.dart';
+import 'package:nufish/widgets/loading_button.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 
@@ -14,11 +15,18 @@ class _SignInPageState extends State<SignInPage> {
   TextEditingController emailController = TextEditingController(text: '');
   TextEditingController passwordController = TextEditingController(text: '');
 
+  bool isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     AuthProvider authProvider = Provider.of<AuthProvider>(context);
 
     handleSignIn() async {
+
+      setState(() {
+        isLoading = true;
+      });
+
       if(await authProvider.loginProvider(
           email: emailController.text,
           password: passwordController.text
@@ -39,6 +47,11 @@ class _SignInPageState extends State<SignInPage> {
           );
         }
       }
+
+      setState(() {
+        isLoading = false;
+      });
+
     }
 
     Widget header() {
@@ -219,7 +232,7 @@ class _SignInPageState extends State<SignInPage> {
               const SizedBox(height: 20),
               passwordInput(),
               const SizedBox(height: 30),
-              signInButton(),
+              isLoading? loadingButton() : signInButton(),
               const Spacer(),
               footer()
             ],
