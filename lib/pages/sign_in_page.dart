@@ -1,11 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:nufish/theme.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 
-class SignInPage extends StatelessWidget {
+class SignInPage extends StatefulWidget {
   const SignInPage({Key? key}) : super(key: key);
 
   @override
+  State<SignInPage> createState() => _SignInPageState();
+}
+
+class _SignInPageState extends State<SignInPage> {
+  TextEditingController emailController = TextEditingController(text: '');
+  TextEditingController passwordController = TextEditingController(text: '');
+
+  @override
   Widget build(BuildContext context) {
+    AuthProvider authProvider = Provider.of<AuthProvider>(context);
+
+    handleSignIn() async {
+      if(await authProvider.loginProvider(
+          email: emailController.text,
+          password: passwordController.text
+      )) {
+        if(context.mounted) {
+          Navigator.pushNamed(context, '/home');
+        }
+      } else {
+        if(context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                backgroundColor: Colors.red,
+                content: Text(
+                  'Gagal Login!',
+                  textAlign: TextAlign.center,
+                ),
+              )
+          );
+        }
+      }
+    }
 
     Widget header() {
       return Column(
@@ -59,6 +93,7 @@ class SignInPage extends StatelessWidget {
                   const SizedBox(width: 16),
                   Expanded(
                       child: TextFormField(
+                        controller: emailController,
                         style: tertiaryTextStyle,
                         decoration: InputDecoration.collapsed(
                           hintText: "Your Email Address",
@@ -103,6 +138,7 @@ class SignInPage extends StatelessWidget {
                   const SizedBox(width: 16),
                   Expanded(
                       child: TextFormField(
+                        controller: passwordController,
                         style: tertiaryTextStyle,
                         decoration: InputDecoration.collapsed(
                           hintText: "Your Password",
@@ -127,7 +163,7 @@ class SignInPage extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
         ),
         child: TextButton(
-          onPressed: () {},
+          onPressed: handleSignIn,
           child: Text(
             "Sign In",
             style: quaternaryTextStyle.copyWith(
@@ -144,7 +180,7 @@ class SignInPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            "Don\'t have an account? ",
+            "Don't have an account? ",
             style: tertiaryTextStyle.copyWith(
               fontSize: 12,
               fontWeight: regular
